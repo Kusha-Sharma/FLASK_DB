@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bite Buddies</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #F8F4EC;
+            color: #000;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background-color: #FFF;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .logo img {
+            height: 40px;
+            margin-right: 10px;
+        }
+        nav a {
+            margin: 0 15px;
+            text-decoration: none;
+            color: #000;
+            font-size: 16px;
+        }
+        main {
+            text-align: center;
+            margin: 50px 20px;
+        }
+        h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+        p {
+            font-size: 18px;
+            margin-bottom: 30px;
+        }
+        .buttons a {
+            display: inline-block;
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 18px;
+            color: #000;
+            text-decoration: none;
+            border: 2px solid #000;
+            border-radius: 5px;
+        }
+        .buttons a:hover {
+            background-color: #000;
+            color: #FFF;
+        }
+        .image {
+            margin-top: 30px;
+        }
+        .image img {
+            width: 300px;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="{{ url_for('static', filename='logo-placeholder.png') }}" alt="Bite Buddies Logo">
+            Bite Buddies
+        </div>
+        <nav>
+            <a href="#">Become a Partner</a>
+            <a href="#">About Us</a>
+        </nav>
+    </header>
+    <main>
+        <h1>From your favorite restaurants to your doorstep</h1>
+        <p>Sit back, relax, and let us bring the feast to you.</p>
+        <div class="buttons">
+            <a href="{{ url_for('register') }}">Register</a>
+            <a href="{{ url_for('login') }}">Login</a>
+        </div>
+        <div class="image">
+            <img src="{{ url_for('static', filename='food-placeholder.png') }}" alt="Food Image">
+        </div>
+    </main>
+</body>
+</html>
