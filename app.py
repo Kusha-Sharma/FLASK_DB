@@ -8,7 +8,7 @@ def home():
 
 @app.route('/register')
 def register():
-    return "<h1>Register Page</h1>"
+    return render_template('register.html')
 
 @app.route('/login')
 def login():
