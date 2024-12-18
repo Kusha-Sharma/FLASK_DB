@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Open Restaurants</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f5ee;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .container {
+            width: 80%;
+            max-width: 900px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo img {
+            width: 60px;
+            height: 60px;
+        }
+
+        .nav {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav a {
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: bold;
+            color: #6c584c;
+        }
+
+        .nav a:hover {
+            text-decoration: underline;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #6c584c;
+        }
+
+        .restaurant-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .restaurant-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border: 1px solid #d6d6d6;
+            border-radius: 8px;
+            background-color: #fffaf0;
+        }
+
+        .restaurant-item img {
+            width: 100px;
+            height: auto;
+            border-radius: 8px;
+            margin-right: 20px;
+        }
+
+        .restaurant-info {
+            flex: 1;
+            text-align: left;
+        }
+
+        .restaurant-info h2 {
+            font-size: 18px;
+            margin: 0;
+            color: #6c584c;
+        }
+
+        .restaurant-info h2:hover {
+            text-decoration: underline;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <img src="Bite-buddies/logo.jpg" alt="Bite Buddies Logo">
+                <span>Bite Buddies</span>
+            </div>
+            <div class="nav">
+                <a href="landingpage.html">Home</a>
+                <a href="order.html">Orders</a>
+                <a href="shopping_cart.html">Basket</a>
+            </div>
+        </div>
+        <h1>Open restaurants in your area:</h1>
+        <div class="restaurant-list">
+            <div class="restaurant-item">
+                <img src="Bite-buddies/dish.jpg" alt="German Gem">
+                <div class="restaurant-info">
+                    <h2>German Gem</h2>
+                </div>
+            </div>
+            <div class="restaurant-item">
+                <img src="Bite-buddies/sushi.jpg" alt="Sushi House">
+                <div class="restaurant-info">
+                    <h2>Sushi House</h2>
+                </div>
+            </div>
+            <div class="restaurant-item">
+                <img src="Bite-buddies/doner.jpg" alt="Döner Palace">
+                <div class="restaurant-info">
+                    <h2>Döner Palace</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

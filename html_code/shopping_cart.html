@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bite Buddies</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f4e9;
+            color: #4b4237;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #fff6e0;
+            border-bottom: 2px solid #4b4237;
+        }
+
+        header img {
+            height: 200px;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #4b4237;
+            font-size: 16px;
+            margin: 0 15px;
+        }
+
+        nav a:hover {
+            text-decoration: underline;
+        }
+
+        .cart {
+            margin: 20px auto;
+            width: 60%;
+            border-collapse: collapse;
+            border: 1px solid #4b4237;
+        }
+
+        .cart th,
+        .cart td {
+            border: 1px solid #4b4237;
+            padding: 10px;
+            text-align: left;
+        }
+
+        .cart th {
+            background-color: #fff6e0;
+        }
+
+        .cart td {
+            background-color: #fefcf5;
+            height: 40px;
+        }
+
+        .additional-request {
+            margin: 20px 0;
+        }
+
+        textarea {
+            width: 80%;
+            height: 50px;
+            padding: 10px;
+            border: 1px solid #4b4237;
+            border-radius: 5px;
+        }
+
+        .pay-btn {
+            background-color: #4b4237;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .pay-btn:hover {
+            background-color: #3a352d;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <img src="Bite-buddies/logo.jpg" alt="Bite Buddies Logo">
+        <nav>
+            <a href="landingpage.html">Home</a>
+            <a href="order.html">Orders</a>
+            <a href="shopping_cart.html">Basket</a>
+        </nav>
+    </header>
+
+    <main>
+        <table class="cart" id="cartTable">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Item</th>
+                    <th>Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Rows will be dynamically added here -->
+            </tbody>
+        </table>
+
+        <div class="additional-request">
+            <label for="request">Additional Request:</label><br>
+            <textarea id="request" placeholder="Enter any special instructions..."></textarea>
+        </div>
+
+        <button class="pay-btn">Pay</button>
+    </main>
+
+    <script>
+        // Function to add a new row to the table
+        function addRow(item = "", price = "") {
+            const table = document.getElementById("cartTable").getElementsByTagName("tbody")[0];
+            const newRow = table.insertRow();
+            const rowNumber = table.rows.length; // Automatically calculate the row number
+
+            // Insert cells into the row
+            const cell1 = newRow.insertCell(0); // Row number
+            const cell2 = newRow.insertCell(1); // Item
+            const cell3 = newRow.insertCell(2); // Price
+
+            // Add content to the cells
+            cell1.textContent = rowNumber;
+            cell2.textContent = item;
+            cell3.textContent = price;
+        }
+
+        // Example: Add initial rows (you can replace these or make it dynamic)
+        addRow("Kartoffelsuppe", "2,50");
+        addRow("Bratwurst", "10,50");
+        addRow("Berliner", "2,00");
+    </script>
+</body>
+
+</html>
