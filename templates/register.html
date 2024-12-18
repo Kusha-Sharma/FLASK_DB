@@ -70,7 +70,7 @@
 <body>
     <div class="container">
         <div class="logo">
-            <img src="Bite-buddies/logo.jpg" alt="Bite Buddies Logo">
+            <img src="{{ url_for('static', filename='logo.jpg') }}" alt="Bite Buddies Logo">
         </div>
         <form class="registration-form">
             <label for="name">Name:</label>
