@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bite Buddies</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f5e9;
+            color: #000;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background-color: #FFF;
+            font-size: 1rem;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        .logo img {
+            height: 60px;
+            margin-right: 10px;
+        }
+        nav a {
+            margin: 0 15px;
+            text-decoration: none;
+            color: #000;
+            font-size: 1.2rem;
+        }
+        main {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin: 50px 50px;
+        }
+        .text {
+            flex: 2;
+            margin-right: 50px;
+            font-size: 1.5rem;
+        }
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+        }
+        p {
+            font-size: 1.5rem;
+            margin-bottom: 50px;
+        }
+        .buttons a {
+            display: inline-block;
+            margin: 20px;
+            padding: 20px 40px;
+            font-size: 1.5rem;
+            color: #000;
+            text-decoration: none;
+            border: 3px solid #000;
+            border-radius: 10px;
+        }
+        .buttons a:hover {
+            background-color: #000;
+            color: #FFF;
+        }
+        .image {
+            flex: 2;
+            margin-left: 100px;
+        }
+        .image img {
+            width: 100%;
+            max-width: 700px;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="{{ url_for('static', filename='logo-placeholder.png') }}" alt="Bite Buddies Logo">
+            Bite Buddies
+        </div>
+        <nav>
+            <a href="{{ url_for('partner') }}">Become a Partner</a>
+            <a href="{{ url_for('about') }}">About Us</a>
+        </nav>
+    </header>
+    <main>
+        <div class="text">
+            <h1>From your favorite restaurants to your doorstep</h1>
+            <p>Sit back, relax, and let us bring the feast to you.</p>
+            <div class="buttons">
+                <a href="{{ url_for('register') }}">Register</a>
+                <a href="{{ url_for('login') }}">Login</a>
+            </div>
+        </div>
+        <div class="image">
+            <img src="{{ url_for('static', filename='food-placeholder.png') }}" alt="Food Image">
+        </div>
+    </main>
+</body>
+</html>
