@@ -54,6 +54,9 @@
         button:hover {
             background-color: #5c5045;
         }
+        .add-more {
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
@@ -68,32 +71,82 @@
             <input type="time" name="opening_to" required><br>
 
             <label>Postcodes:</label>
-            <input type="text" name="postcode" placeholder="Add postcodes"><br>
+            <div id="postcodes">
+                <input type="text" name="postcode[]" placeholder="Add postcode">
+            </div>
+            <button type="button" class="add-more" onclick="addField('postcodes', 'postcode[]')">+ Add More Postcodes</button>
 
             <h3>Menu</h3>
             <h4>Appetizers:</h4>
-            <input type="text" name="appetizer_name" placeholder="Name">
-            <textarea name="appetizer_description" rows="2" placeholder="Description"></textarea>
-            <input type="text" name="appetizer_price" placeholder="Price">
+            <div id="appetizers">
+                <input type="text" name="appetizer_name[]" placeholder="Name">
+                <textarea name="appetizer_description[]" rows="2" placeholder="Description"></textarea>
+                <input type="text" name="appetizer_price[]" placeholder="Price">
+            </div>
+            <button type="button" class="add-more" onclick="addSection('appetizers', 'appetizer')">+ Add More Appetizers</button>
 
             <h4>Main Dishes:</h4>
-            <input type="text" name="main_name" placeholder="Name">
-            <textarea name="main_description" rows="2" placeholder="Description"></textarea>
-            <input type="text" name="main_price" placeholder="Price">
+            <div id="main-dishes">
+                <input type="text" name="main_name[]" placeholder="Name">
+                <textarea name="main_description[]" rows="2" placeholder="Description"></textarea>
+                <input type="text" name="main_price[]" placeholder="Price">
+            </div>
+            <button type="button" class="add-more" onclick="addSection('main-dishes', 'main')">+ Add More Main Dishes</button>
 
             <h4>Desserts:</h4>
-            <input type="text" name="dessert_name" placeholder="Name">
-            <textarea name="dessert_description" rows="2" placeholder="Description"></textarea>
-            <input type="text" name="dessert_price" placeholder="Price">
+            <div id="desserts">
+                <input type="text" name="dessert_name[]" placeholder="Name">
+                <textarea name="dessert_description[]" rows="2" placeholder="Description"></textarea>
+                <input type="text" name="dessert_price[]" placeholder="Price">
+            </div>
+            <button type="button" class="add-more" onclick="addSection('desserts', 'dessert')">+ Add More Desserts</button>
 
             <h4>Drinks:</h4>
-            <input type="text" name="drink_name" placeholder="Name">
-            <input type="text" name="drink_price" placeholder="Price">
+            <div id="drinks">
+                <input type="text" name="drink_name[]" placeholder="Name">
+                <input type="text" name="drink_price[]" placeholder="Price">
+            </div>
+            <button type="button" class="add-more" onclick="addSection('drinks', 'drink')">+ Add More Drinks</button>
 
             <button type="submit">Save Menu</button>
         </form>
     </div>
+
     <script>
+        // Function to add a new input field for postcodes
+        function addField(parentId, name) {
+            const container = document.getElementById(parentId);
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.name = name;
+            input.placeholder = 'Add postcode';
+            container.appendChild(input);
+        }
+
+        // Function to add a new menu section (appetizers, main dishes, desserts, drinks)
+        function addSection(parentId, prefix) {
+            const container = document.getElementById(parentId);
+            const nameInput = document.createElement('input');
+            nameInput.type = 'text';
+            nameInput.name = `${prefix}_name[]`;
+            nameInput.placeholder = 'Name';
+
+            const descriptionInput = document.createElement('textarea');
+            descriptionInput.name = `${prefix}_description[]`;
+            descriptionInput.rows = 2;
+            descriptionInput.placeholder = 'Description';
+
+            const priceInput = document.createElement('input');
+            priceInput.type = 'text';
+            priceInput.name = `${prefix}_price[]`;
+            priceInput.placeholder = 'Price';
+
+            container.appendChild(nameInput);
+            container.appendChild(descriptionInput);
+            container.appendChild(priceInput);
+        }
+
+        // Populate restaurant name dynamically
         document.getElementById("restaurant-name").innerText = localStorage.getItem("restaurantName") || "Restaurant Name";
     </script>
 </body>
