@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Menu</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f4e7;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            width: 800px;
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        h1 {
+            margin: 0;
+        }
+        form label {
+            font-weight: bold;
+        }
+        input, textarea {
+            width: calc(100% - 20px);
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #7a6a58;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            font-size: 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+        button:hover {
+            background-color: #5c5045;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Bite Buddies</h1>
+            <h2 id="restaurant-name">Restaurant Name</h2>
+        </div>
+        <form action="addMenu.php" method="post">
+            <label>Opening Hours:</label>
+            <input type="time" name="opening_from" required> to 
+            <input type="time" name="opening_to" required><br>
+
+            <label>Postcodes:</label>
+            <input type="text" name="postcode" placeholder="Add postcodes"><br>
+
+            <h3>Menu</h3>
+            <h4>Appetizers:</h4>
+            <input type="text" name="appetizer_name" placeholder="Name">
+            <textarea name="appetizer_description" rows="2" placeholder="Description"></textarea>
+            <input type="text" name="appetizer_price" placeholder="Price">
+
+            <h4>Main Dishes:</h4>
+            <input type="text" name="main_name" placeholder="Name">
+            <textarea name="main_description" rows="2" placeholder="Description"></textarea>
+            <input type="text" name="main_price" placeholder="Price">
+
+            <h4>Desserts:</h4>
+            <input type="text" name="dessert_name" placeholder="Name">
+            <textarea name="dessert_description" rows="2" placeholder="Description"></textarea>
+            <input type="text" name="dessert_price" placeholder="Price">
+
+            <h4>Drinks:</h4>
+            <input type="text" name="drink_name" placeholder="Name">
+            <input type="text" name="drink_price" placeholder="Price">
+
+            <button type="submit">Save Menu</button>
+        </form>
+    </div>
+    <script>
+        document.getElementById("restaurant-name").innerText = localStorage.getItem("restaurantName") || "Restaurant Name";
+    </script>
+</body>
+</html>
