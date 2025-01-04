@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bite Buddies - Login</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #fdf8ed;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .logo {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+    }
+
+    .logo img {
+      width: 120px;
+    }
+
+    .login-container {
+      border: 1px solid #5c4c3d;
+      padding: 20px 40px;
+      border-radius: 5px;
+      background-color: #fdf8ed;
+    }
+
+    .input-group {
+      margin-bottom: 15px;
+    }
+
+    label {
+      font-size: 16px;
+      color: #5c4c3d;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #a99b8d;
+      border-radius: 20px;
+      background-color: #a99b8d;
+      color: #5c4c3d;
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      color: white;
+      background-color: #5c4c3d;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+
+    .login-btn:hover {
+      background-color: #4a3c2f;
+    }
+  </style>
+</head>
+<body>
+  <div class="logo">
+    <img src="logo.png" alt="Bite Buddies Logo" />
+  </div>
+  <div class="login-container">
+    <form>
+      <div class="input-group">
+        <label for="email">Email :</label>
+        <input type="email" id="email" name="email" required />
+      </div>
+      <div class="input-group">
+        <label for="password">Password :</label>
+        <input type="password" id="password" name="password" required />
+      </div>
+      <button type="submit" class="login-btn">Login</button>
+    </form>
+  </div>
+</body>
+</html>
