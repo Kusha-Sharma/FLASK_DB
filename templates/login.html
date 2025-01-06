@@ -3,73 +3,88 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bite Buddies</title>
+  <title>Bite Buddies - Login</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #f8f5e8;
-    }
-    .container {
+      background-color: #fdf8ed;
       display: flex;
-      justify-content: space-between;
-      padding: 40px;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
     }
-    .left {
-      max-width: 50%;
-    }
+
     .logo {
-      font-size: 2rem;
-      font-weight: bold;
-      margin-bottom: 20px;
+      position: absolute;
+      top: 20px;
+      left: 20px;
     }
-    .tagline {
-      font-size: 1.5rem;
-      margin-bottom: 10px;
+
+    .logo img {
+      width: 120px;
     }
-    .description {
-      font-size: 1rem;
-      margin-bottom: 20px;
+
+    .login-container {
+      border: 1px solid #5c4c3d;
+      padding: 20px 40px;
+      border-radius: 5px;
+      background-color: #fdf8ed;
     }
-    .links a {
-      text-decoration: underline;
-      margin-right: 15px;
-      color: black;
+
+    .input-group {
+      margin-bottom: 15px;
     }
-    .auth-links a {
-      font-size: 1.5rem;
-      text-decoration: underline;
-      font-weight: bold;
-      margin-right: 20px;
-      color: black;
+
+    label {
+      font-size: 16px;
+      color: #5c4c3d;
+      display: block;
+      margin-bottom: 5px;
     }
-    .right img {
-      width: 300px;
-      height: auto;
-      border-radius: 10px;
+
+    input {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #a99b8d;
+      border-radius: 20px;
+      background-color: #a99b8d;
+      color: #5c4c3d;
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      color: white;
+      background-color: #5c4c3d;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+
+    .login-btn:hover {
+      background-color: #4a3c2f;
     }
   </style>
 </head>
 <body>
-  <nav style="display: flex; justify-content: flex-end; padding: 20px;">
-    <a href="#" class="links">Become a Partner</a>
-    <a href="#" class="links">About Us</a>
-  </nav>
-
-  <div class="container">
-    <div class="left">
-      <div class="logo">Bite Buddies</div>
-      <div class="tagline">From your favorite restaurants to your doorstep</div>
-      <div class="description">Sit back, relax, and let us bring the feast to you.</div>
-      <div class="auth-links">
-        <a href="#">Register</a>
-        <a href="#">Login</a>
+  <div class="logo">
+    <img src="logo.png" alt="Bite Buddies Logo" />
+  </div>
+  <div class="login-container">
+    <form>
+      <div class="input-group">
+        <label for="email">Email :</label>
+        <input type="email" id="email" name="email" required />
       </div>
-    </div>
-    <div class="right">
-      <img src="food-image.jpg" alt="Food Delivery" />
-    </div>
+      <div class="input-group">
+        <label for="password">Password :</label>
+        <input type="password" id="password" name="password" required />
+      </div>
+      <button type="submit" class="login-btn">Login</button>
+    </form>
   </div>
 </body>
 </html>
