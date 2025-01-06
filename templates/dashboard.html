@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Restaurant Dashboard</title>
+</head>
+<body>
+    <h1>Restaurant Information</h1>
+    <div>
+        <p>Restaurant Name: {{ restaurant['restaurant_name'] }}</p>
+        <p>Email: {{ restaurant['email'] }}</p>
+        <p>Phone: {{ restaurant['phone'] }}</p>
+        <p>Address: {{ restaurant['address'] }}</p>
+        <p>PLZ: {{ restaurant['plz'] }}</p>
+    </div>
+    <a href="{{ url_for('partner') }}">Logout</a>
+</body>
+</html>
