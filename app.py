@@ -1,11 +1,6 @@
-<<<<<<< HEAD
 from flask import Flask, render_template, request, redirect, url_for, flash
 import sqlite3
 import re
-=======
-from flask import Flask, render_template, request, redirect, url_for, flash, session
-import sqlite3
->>>>>>> 99995223deda2201a035f6c3df856beb93e8e2da
 from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
