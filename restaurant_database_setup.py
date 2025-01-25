@@ -9,9 +9,12 @@ if not os.path.exists('database'):
 connection = sqlite3.connect("database/restaurant.db")
 cursor = connection.cursor()
 
-# Create restaurants table
+# Drop the existing restaurants table if it exists
+cursor.execute("DROP TABLE IF EXISTS restaurants")
+
+# Create restaurants table with additional columns
 cursor.execute("""
-CREATE TABLE IF NOT EXISTS restaurants (
+CREATE TABLE restaurants (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     restaurant_name TEXT NOT NULL,
     email TEXT NOT NULL UNIQUE,
@@ -19,6 +22,9 @@ CREATE TABLE IF NOT EXISTS restaurants (
     address TEXT NOT NULL,
     plz INTEGER NOT NULL,
     password TEXT NOT NULL,
+    opening_hours TEXT,  -- Stored as TEXT since SQLite does not have a TIME type
+    delivery_postcode INTEGER,
+    photo_url TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 )
 """)

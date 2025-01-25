@@ -1,10 +1,19 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, session
 import sqlite3
 import re
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
+import os
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Required for flash messages
+
+UPLOAD_FOLDER = 'static/uploads'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def get_db_connection():
     conn = sqlite3.connect('database/restaurant.db')
@@ -96,7 +105,7 @@ def partner_register():
         conn = get_db_connection()
         try:
             conn.execute('INSERT INTO restaurants (restaurant_name, email, phone, address, plz, password) VALUES (?, ?, ?, ?, ?, ?)',
-                        (restaurant_name, email, phone, address, plz, password))
+                         (restaurant_name, email, phone, address, plz, password))
             conn.commit()
             flash('Registration successful!')
             return redirect(url_for('partner'))
@@ -113,8 +122,7 @@ def partner_login():
         password = request.form['login-password']
         
         conn = get_db_connection()
-        user = conn.execute('SELECT * FROM restaurants WHERE email = ?', 
-                          (email,)).fetchone()
+        user = conn.execute('SELECT * FROM restaurants WHERE email = ?', (email,)).fetchone()
         conn.close()
         
         if user and check_password_hash(user['password'], password):
@@ -125,17 +133,45 @@ def partner_login():
             flash('Invalid email or password!')
             return redirect(url_for('partner'))
 
-@app.route('/partner/dashboard', methods=['GET'])
+@app.route('/partner/dashboard', methods=['GET', 'POST'])
 def partner_dashboard():
     if 'user_id' not in session:
         return redirect(url_for('partner'))
-        
+    
     conn = get_db_connection()
-    restaurant = conn.execute('SELECT * FROM restaurants WHERE id = ?', 
-                            (session['user_id'],)).fetchone()
+    restaurant = conn.execute('SELECT * FROM restaurants WHERE id = ?', (session['user_id'],)).fetchone()
+    
+    if request.method == 'POST':
+        opening_hours_start = request.form['opening_hours_start']
+        opening_hours_end = request.form['opening_hours_end']
+        opening_hours = f"{opening_hours_start} to {opening_hours_end}"
+        delivery_postcode = request.form['delivery_postcode']
+        
+        # Handle file upload
+        if 'photo' in request.files:
+            file = request.files['photo']
+            if file and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                conn.execute('UPDATE restaurants SET photo_url = ? WHERE id = ?', (filename, session['user_id']))
+        
+        conn.execute('UPDATE restaurants SET opening_hours = ?, delivery_postcode = ? WHERE id = ?',
+                     (opening_hours, delivery_postcode, session['user_id']))
+        conn.commit()
+        flash('Information updated successfully!')
+    
+    restaurant = conn.execute('SELECT * FROM restaurants WHERE id = ?', (session['user_id'],)).fetchone()
     conn.close()
     
     return render_template('dashboard.html', restaurant=restaurant)
+
+@app.route('/make_menu')
+def make_menu():
+    return render_template('MakeMenu.html')
+
+@app.route('/order_history')
+def order_history():
+    return render_template('OrderHistory.html')
 
 @app.route('/about')
 def about():

@@ -1,17 +1,240 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Restaurant Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f5e9;
+            color: #000;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background-color: #FFF;
+            font-size: 1rem;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        .logo img {
+            height: 60px;
+            margin-right: 10px;
+        }
+        nav {
+            display: flex;
+            align-items: center;
+        }
+        .balance {
+            margin-right: 20px;
+            font-size: 1.2rem;
+        }
+        .logout {
+            padding: 10px 20px;
+            font-size: 1.2rem;
+            color: #000;
+            text-decoration: none;
+            border: 2px solid #000;
+            border-radius: 5px;
+        }
+        .logout:hover {
+            background-color: #000;
+            color: #FFF;
+        }
+        main {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin: 50px;
+        }
+        .text {
+            flex: 2;
+            font-size: 1.5rem;
+        }
+        .form-container {
+            flex: 1;
+            margin-left: 50px;
+        }
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+        }
+        p {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+        .restaurant-photo {
+            max-width: 500px;
+            max-height: 500px;
+            border-radius: 10px;
+        }
+        .modify-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 1.2rem;
+            color: #FFF;
+            background-color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .modify-button:hover {
+            background-color: #444;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0,0,0);
+            background-color: rgba(0,0,0,0.4);
+            padding-top: 60px;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 10px;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+        input[type="text"], input[type="number"], input[type="time"], input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 1.2rem;
+            color: #FFF;
+            background-color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #444;
+        }
+        .menu-order-buttons {
+            margin-top: 20px;
+        }
+        .menu-order-buttons a {
+            display: inline-block;
+            margin-right: 20px;
+            padding: 10px 20px;
+            font-size: 1.2rem;
+            color: #FFF;
+            background-color: #000;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .menu-order-buttons a:hover {
+            background-color: #444;
+        }
+    </style>
+    <script>
+        function toggleForm() {
+            const modal = document.getElementById('modify-modal');
+            modal.style.display = modal.style.display === 'none' ? 'block' : 'none';
+        }
+        function closeModal() {
+            const modal = document.getElementById('modify-modal');
+            modal.style.display = 'none';
+        }
+        window.onclick = function(event) {
+            const modal = document.getElementById('modify-modal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+    </script>
 </head>
 <body>
-    <h1>Restaurant Information</h1>
-    <div>
-        <p>Restaurant Name: {{ restaurant['restaurant_name'] }}</p>
-        <p>Email: {{ restaurant['email'] }}</p>
-        <p>Phone: {{ restaurant['phone'] }}</p>
-        <p>Address: {{ restaurant['address'] }}</p>
-        <p>PLZ: {{ restaurant['plz'] }}</p>
+    <header>
+        <div class="logo">
+            <img src="{{ url_for('static', filename='logo-placeholder.png') }}" alt="Bite Buddies Logo">
+            Bite Buddies
+        </div>
+        <nav>
+            <div class="balance">Balance: €0</div>
+            <a class="logout" href="{{ url_for('partner') }}">Logout</a>
+        </nav>
+    </header>
+    <main>
+        <div class="text">
+            <h1>Restaurant Information</h1>
+            <div>
+                <p>Restaurant Name: {{ restaurant['restaurant_name'] }}</p>
+                <p>Email: {{ restaurant['email'] }}</p>
+                <p>Phone: {{ restaurant['phone'] }}</p>
+                <p>Address: {{ restaurant['address'] }}</p>
+                <p>PLZ: {{ restaurant['plz'] }}</p>
+                <p>Opening Hours: {{ restaurant['opening_hours'] }}</p>
+                <p>Delivery Postcode: {{ restaurant['delivery_postcode'] }}</p>
+            </div>
+            <button class="modify-button" onclick="toggleForm()">Modify Information</button>
+            <div class="menu-order-buttons">
+                <a href="{{ url_for('make_menu') }}">Menu</a>
+                <a href="{{ url_for('order_history') }}">Order</a>
+            </div>
+        </div>
+        <div class="form-container">
+            {% if restaurant['photo_url'] %}
+            <img src="{{ url_for('static', filename='uploads/' ~ restaurant['photo_url']) }}" alt="Restaurant Photo" class="restaurant-photo">
+            {% endif %}
+        </div>
+    </main>
+    <div id="modify-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <form id="modify-form" method="POST" enctype="multipart/form-data">
+                <label for="opening_hours_start">Opening Hours Start:</label>
+                <input type="time" id="opening_hours_start" name="opening_hours_start" value="{{ restaurant['opening_hours'].split(' to ')[0] if restaurant['opening_hours'] else '' }}">
+                
+                <label for="opening_hours_end">Opening Hours End:</label>
+                <input type="time" id="opening_hours_end" name="opening_hours_end" value="{{ restaurant['opening_hours'].split(' to ')[1] if restaurant['opening_hours'] else '' }}">
+                
+                <label for="delivery_postcode">Delivery Postcode:</label>
+                <input type="number" id="delivery_postcode" name="delivery_postcode" value="{{ restaurant['delivery_postcode'] }}">
+                
+                <label for="photo">Restaurant Photo:</label>
+                <input type="file" id="photo" name="photo">
+                
+                <button type="submit">Update Information</button>
+            </form>
+        </div>
     </div>
-    <a href="{{ url_for('partner') }}">Logout</a>
 </body>
 </html>
