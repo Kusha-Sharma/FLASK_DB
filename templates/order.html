@@ -124,7 +124,7 @@
         function updateBalance(newBalance) {
             balance = newBalance; // Set the new balance
             const balanceDisplay = document.getElementById("balanceDisplay");
-            balanceDisplay.textContent = Balance; {balance} Euros;
+            balanceDisplay.textContent = `Balance: ${balance} Euros`; // Fixed the bug here
         }
 
         // Simulate fetching data and updating the UI
