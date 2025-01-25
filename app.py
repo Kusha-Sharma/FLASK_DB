@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
+
 import sqlite3
 import re
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -84,9 +85,60 @@ def register():
     # If GET request, show the registration form
     return render_template('register.html')
 
-@app.route('/login')
+@app.route('/login', methods=['GET', 'POST'])
 def login():
+    print(" Login page accessed!")  # Debugging
+
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+
+        print(f" Received Login Request: email={email}, password={password}")
+
+        if not email or not password:
+            flash(" Email and password are required!")
+            return render_template('login.html')
+
+        try:
+            conn = sqlite3.connect('database.db')
+            cursor = conn.cursor()
+
+            # Fetch user from database
+            cursor.execute("SELECT * FROM Users WHERE email = ?", (email,))
+            user = cursor.fetchone()
+            conn.close()
+
+            print(f" User fetched from database: {user}")
+
+            if user and user[4] == password:  # Remove password hashing temporarily for debugging
+                session['user_id'] = user[0]
+                session['email'] = user[3]
+
+                print(f" SUCCESS: User {session['user_id']} logged in!")
+                flash(" Login successful! Redirecting...")
+                return redirect(url_for('restaurants'))
+            else:
+                print(" ERROR: Incorrect email or password")
+                flash(" Incorrect email or password!")
+                return render_template('login.html')
+
+        except sqlite3.Error as e:
+            print(f" DATABASE ERROR: {str(e)}")
+            flash(f" Database error: {str(e)}")
+            return render_template('login.html')
+
     return render_template('login.html')
+
+
+@app.route('/restaurants')
+def restaurants():
+    if 'user_id' in session:
+        print(f" User {session['user_id']} accessed restaurants page.")
+        return render_template('restaurants.html')
+    else:
+        flash(" You need to log in first!")
+        return redirect(url_for('login'))
+
 
 @app.route('/partner', methods=['GET'])
 def partner():
