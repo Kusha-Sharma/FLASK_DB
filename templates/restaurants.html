@@ -7,135 +7,167 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f9f5ee;
             margin: 0;
             padding: 0;
+            background-color: #f8f5e9;
+            color: #000;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background-color: #FFF;
+            font-size: 1rem;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        .logo img {
+            height: 60px;
+            margin-right: 10px;
+        }
+        nav {
+            display: flex;
+            align-items: center;
+        }
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            margin-right: auto;
+        }
+        .nav-links a {
+            font-size: 1.2rem;
+            color: #000;
+            text-decoration: none;
+        }
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+        .shopping-cart {
+            margin-right: 20px;
+        }
+        .logout {
+            padding: 10px 20px;
+            font-size: 1.2rem;
+            color: #000;
+            text-decoration: none;
+            border: 2px solid #000;
+            border-radius: 5px;
+        }
+        .logout:hover {
+            background-color: #000;
+            color: #FFF;
+        }
+        main {
+            flex: 1;
             display: flex;
             justify-content: center;
             align-items: center;
-            flex-direction: column;
+            padding: 50px;
         }
-
         .container {
             width: 80%;
             max-width: 900px;
             padding: 20px;
-            text-align: center;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
-
         .header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            text-align: center;
             margin-bottom: 20px;
         }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .logo img {
-            width: 60px;
-            height: 60px;
-        }
-
-        .nav {
-            display: flex;
-            gap: 20px;
-        }
-
-        .nav a {
-            text-decoration: none;
-            font-size: 16px;
-            font-weight: bold;
-            color: #6c584c;
-        }
-
-        .nav a:hover {
-            text-decoration: underline;
-        }
-
         h1 {
-            font-size: 24px;
+            font-size: 3.5rem;
             margin-bottom: 20px;
-            color: #6c584c;
         }
-
         .restaurant-list {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
+            margin-bottom: 20px;
         }
-
         .restaurant-item {
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            padding: 10px;
-            border: 1px solid #d6d6d6;
+            padding: 20px;
+            border: 1px solid #ddd;
             border-radius: 8px;
-            background-color: #fffaf0;
+            margin-bottom: 10px;
+            background-color: #fff;
         }
-
         .restaurant-item img {
             width: 100px;
             height: auto;
             border-radius: 8px;
-            margin-right: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
-
         .restaurant-info {
-            flex: 1;
-            text-align: left;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
-
         .restaurant-info h2 {
-            font-size: 18px;
+            font-size: 1.5rem;
             margin: 0;
             color: #6c584c;
         }
-
-        .restaurant-info h2:hover {
-            text-decoration: underline;
-            cursor: pointer;
+        .restaurant-info p {
+            font-size: 1.2rem;
+            color: #555;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <div class="logo">
-                <img src="Bite-buddies/logo.jpg" alt="Bite Buddies Logo">
-                <span>Bite Buddies</span>
+    <header>
+        <div class="logo">
+            <img src="{{ url_for('static', filename='logo-placeholder.png') }}" alt="Bite Buddies Logo">
+            Bite Buddies
+        </div>
+        <nav>
+            <div class="nav-links">
+                <a href="{{ url_for('restaurants') }}">Home</a>
+                <a href="#">Order</a>
+                <a href="#" class="shopping-cart">Shopping Cart</a>
             </div>
-            <div class="nav">
-                <a href="landingpage.html">Home</a>
-                <a href="order.html">Orders</a>
-                <a href="shopping_cart.html">Basket</a>
+            <a class="logout" href="{{ url_for('logout') }}">Logout</a>
+        </nav>
+    </header>
+    <main>
+        <div class="container">
+            <div class="header">
+                <h1>Open Restaurants</h1>
+            </div>
+            <div class="restaurant-list">
+                <div class="restaurant-item">
+                    <div class="restaurant-info">
+                        <h2>German Gem</h2>
+                        <p>Authentic German cuisine</p>
+                    </div>
+                    <img src="Bite-buddies/dish.jpg" alt="German Gem">
+                </div>
+                <div class="restaurant-item">
+                    <div class="restaurant-info">
+                        <h2>Sushi House</h2>
+                        <p>Fresh sushi and sashimi</p>
+                    </div>
+                    <img src="Bite-buddies/sushi.jpg" alt="Sushi House">
+                </div>
+                <div class="restaurant-item">
+                    <div class="restaurant-info">
+                        <h2>Döner Palace</h2>
+                        <p>Delicious döner kebabs</p>
+                    </div>
+                    <img src="Bite-buddies/doner.jpg" alt="Döner Palace">
+                </div>
             </div>
         </div>
-        <h1>Open restaurants in your area:</h1>
-        <div class="restaurant-list">
-            <div class="restaurant-item">
-                <img src="Bite-buddies/dish.jpg" alt="German Gem">
-                <div class="restaurant-info">
-                    <h2>German Gem</h2>
-                </div>
-            </div>
-            <div class="restaurant-item">
-                <img src="Bite-buddies/sushi.jpg" alt="Sushi House">
-                <div class="restaurant-info">
-                    <h2>Sushi House</h2>
-                </div>
-            </div>
-            <div class="restaurant-item">
-                <img src="Bite-buddies/doner.jpg" alt="Döner Palace">
-                <div class="restaurant-info">
-                    <h2>Döner Palace</h2>
-                </div>
-            </div>
-        </div>
-    </div>
+    </main>
 </body>
 </html>

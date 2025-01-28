@@ -129,7 +129,7 @@
             margin-bottom: 10px;
             font-size: 1.2rem;
         }
-        input[type="text"], input[type="number"], input[type="time"], input[type="file"] {
+        input[type="text"], input[type="number"], input[type="time"], input[type="file"], textarea {
             width: 100%;
             padding: 10px;
             margin-bottom: 20px;
@@ -163,6 +163,14 @@
         .menu-order-buttons a:hover {
             background-color: #444;
         }
+        .flash-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border: 1px solid #f5c6cb;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
     </style>
     <script>
         function toggleForm() {
@@ -188,13 +196,22 @@
             Bite Buddies
         </div>
         <nav>
-            <div class="balance">Balance: €0</div>
+            <div class="balance">Balance: €{{ restaurant['balance'] }}</div>
             <a class="logout" href="{{ url_for('partner') }}">Logout</a>
         </nav>
     </header>
     <main>
         <div class="text">
             <h1>Restaurant Information</h1>
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <div class="flash-message">
+                        {% for message in messages %}
+                            <p>{{ message }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
             <div>
                 <p>Restaurant Name: {{ restaurant['restaurant_name'] }}</p>
                 <p>Email: {{ restaurant['email'] }}</p>
@@ -203,6 +220,7 @@
                 <p>PLZ: {{ restaurant['plz'] }}</p>
                 <p>Opening Hours: {{ restaurant['opening_hours'] }}</p>
                 <p>Delivery Postcode: {{ restaurant['delivery_postcode'] }}</p>
+                <p>Description: {{ restaurant['description'] }}</p>
             </div>
             <button class="modify-button" onclick="toggleForm()">Modify Information</button>
             <div class="menu-order-buttons">
@@ -212,7 +230,7 @@
         </div>
         <div class="form-container">
             {% if restaurant['photo_url'] %}
-            <img src="{{ url_for('static', filename='uploads/' ~ restaurant['photo_url']) }}" alt="Restaurant Photo" class="restaurant-photo">
+            <img src="{{ url_for('static', filename='uploads/' ~ restaurant['restaurant_name'] ~ '/' ~ restaurant['photo_url']) }}" alt="Restaurant Photo" class="restaurant-photo">
             {% endif %}
         </div>
     </main>
@@ -228,6 +246,9 @@
                 
                 <label for="delivery_postcode">Delivery Postcode:</label>
                 <input type="number" id="delivery_postcode" name="delivery_postcode" value="{{ restaurant['delivery_postcode'] }}">
+                
+                <label for="description">Description:</label>
+                <textarea id="description" name="description">{{ restaurant['description'] }}</textarea>
                 
                 <label for="photo">Restaurant Photo:</label>
                 <input type="file" id="photo" name="photo">

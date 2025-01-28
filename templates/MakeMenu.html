@@ -1,10 +1,9 @@
-<!-- filepath: /c:/Users/leesh/Documents/GitHub/FLASK_DB/templates/MakeMenu.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Make Menu - Bite Buddies</title>
+    <title>{{ restaurant_name }} Menu</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -12,6 +11,9 @@
             padding: 0;
             background-color: #f8f5e9;
             color: #000;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
         header {
             display: flex;
@@ -48,37 +50,113 @@
             color: #FFF;
         }
         main {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             padding: 50px;
+        }
+        .container {
+            width: 80%;
+            max-width: 900px;
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
         }
         h1 {
             font-size: 3.5rem;
             margin-bottom: 20px;
         }
-        form {
-            margin-top: 20px;
-        }
-        label {
-            display: block;
-            margin-bottom: 10px;
-            font-size: 1.2rem;
-        }
-        input[type="text"], textarea {
-            width: 100%;
-            padding: 10px;
+        .menu-items {
             margin-bottom: 20px;
-            font-size: 1.2rem;
         }
-        button {
-            padding: 10px 20px;
+        .menu-items h3 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+        .menu-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            background-color: #fff;
+        }
+        .menu-item img {
+            width: 200px;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .item-info {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .item-info h4 {
+            font-size: 1.5rem;
+            margin: 0;
+            color: #6c584c;
+        }
+        .item-info p {
             font-size: 1.2rem;
-            color: #FFF;
-            background-color: #000;
+            color: #555;
+        }
+        .item-controls {
+            display: flex;
+            gap: 10px;
+        }
+        .item-controls button {
+            background-color: #7a6a58;
+            color: #fff;
             border: none;
+            padding: 10px 20px;
+            font-size: 1rem;
             border-radius: 5px;
             cursor: pointer;
         }
+        .item-controls button:hover {
+            background-color: #5c5045;
+        }
+        form {
+            margin-top: 20px;
+        }
+        input[type="text"], input[type="file"], textarea {
+            width: calc(100% - 20px);
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #7a6a58;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            font-size: 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
         button:hover {
-            background-color: #444;
+            background-color: #5c5045;
+        }
+        .flash-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border: 1px solid #f5c6cb;
+            border-radius: 4px;
+            margin-bottom: 20px;
         }
     </style>
 </head>
@@ -86,26 +164,69 @@
     <header>
         <div class="logo">
             <img src="{{ url_for('static', filename='logo-placeholder.png') }}" alt="Bite Buddies Logo">
-            Bite Buddies
+            {{ restaurant_name }}
         </div>
         <nav>
             <a class="logout" href="{{ url_for('partner') }}">Logout</a>
         </nav>
     </header>
     <main>
-        <h1>Make Menu</h1>
-        <form method="POST">
-            <label for="dish_name">Dish Name:</label>
-            <input type="text" id="dish_name" name="dish_name" required>
-            
-            <label for="description">Description:</label>
-            <textarea id="description" name="description" rows="4" required></textarea>
-            
-            <label for="price">Price:</label>
-            <input type="text" id="price" name="price" required>
-            
-            <button type="submit">Add Dish</button>
-        </form>
+        <div class="container">
+            <div class="header">
+                <h1>{{ restaurant_name }}</h1>
+            </div>
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <div class="flash-message">
+                        {% for message in messages %}
+                            <p>{{ message }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+            <div class="menu-items">
+                <h3>Current Menu</h3>
+                {% for item in menu_items %}
+                <div class="menu-item">
+                    <div class="item-info">
+                        <h4>{{ item['name'] }}</h4>
+                        <p>{{ item['description'] }}</p>
+                        <p>Price: €{{ item['price'] }}</p>
+                    </div>
+                    {% if item['photo_url'] %}
+                    <img src="{{ url_for('static', filename='uploads/' ~ restaurant_name ~ '/' ~ item['photo_url']) }}" alt="{{ item['name'] }}">
+                    {% endif %}
+                    <div class="item-controls">
+                        <button onclick="editItem({{ item['id'] }}, '{{ item['name'] }}', '{{ item['description'] }}', {{ item['price'] }})">Edit</button>
+                        <form method="POST" action="{{ url_for('delete_menu_item', item_id=item['id']) }}" style="display:inline;">
+                            <button type="submit">Delete</button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <button onclick="document.getElementById('modify-menu').style.display='block'">Add Menu</button>
+            <div id="modify-menu" style="display:none;">
+                <form method="POST" enctype="multipart/form-data" action="{{ url_for('make_menu') }}">
+                    <h3>Add Menu Item</h3>
+                    <input type="hidden" name="id" id="menu-item-id">
+                    <input type="text" name="name" id="menu-item-name" placeholder="Name">
+                    <textarea name="description" id="menu-item-description" rows="2" placeholder="Description"></textarea>
+                    <input type="text" name="price" id="menu-item-price" placeholder="Price">
+                    <input type="file" name="photo">
+                    <button type="submit">Save Menu</button>
+                </form>
+            </div>
+        </div>
     </main>
+    <script>
+        function editItem(id, name, description, price) {
+            document.getElementById('menu-item-id').value = id;
+            document.getElementById('menu-item-name').value = name;
+            document.getElementById('menu-item-description').value = description;
+            document.getElementById('menu-item-price').value = price;
+            document.getElementById('modify-menu').style.display = 'block';
+        }
+    </script>
 </body>
 </html>

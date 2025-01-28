@@ -12,6 +12,9 @@ cursor = connection.cursor()
 # Drop the existing restaurants table if it exists
 cursor.execute("DROP TABLE IF EXISTS restaurants")
 
+# Drop the existing menu_items table if it exists
+cursor.execute("DROP TABLE IF EXISTS menu_items")
+
 # Create restaurants table with additional columns
 cursor.execute("""
 CREATE TABLE restaurants (
@@ -24,8 +27,23 @@ CREATE TABLE restaurants (
     password TEXT NOT NULL,
     opening_hours TEXT,  -- Stored as TEXT since SQLite does not have a TIME type
     delivery_postcode INTEGER,
+    description TEXT,
     photo_url TEXT,
+    balance REAL NOT NULL DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)
+""")
+
+# Create menu_items table
+cursor.execute("""
+CREATE TABLE menu_items (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    restaurant_id INTEGER NOT NULL,
+    name TEXT NOT NULL,
+    description TEXT,
+    price REAL NOT NULL,
+    photo_url TEXT,
+    FOREIGN KEY (restaurant_id) REFERENCES restaurants (id)
 )
 """)
 
