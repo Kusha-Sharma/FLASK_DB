@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bite Buddies Menu</title>
-    <style>
+    <title>Payment Successful</title>
+     <style>
         body {
             font-family: Arial, sans-serif;
             background-color: #f9f5ee;
@@ -224,94 +224,6 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
     </style>
-    <script>
-        let cart = {};
-
-        function addToCart(itemName, itemPrice) {
-            if (cart[itemName]) {
-                cart[itemName].quantity += 1;
-            } else {
-                cart[itemName] = { price: itemPrice, quantity: 1 };
-            }
-            updateCartTable();
-        }
-
-        function removeFromCart(itemName) {
-            if (cart[itemName]) {
-                cart[itemName].quantity -= 1;
-                if (cart[itemName].quantity <= 0) {
-                    delete cart[itemName];
-                }
-            }
-            updateCartTable();
-        }
-
-        function updateCartTable() {
-            const table = document.getElementById('cart-table');
-            table.innerHTML = `
-                <tr>
-                    <th>Item</th>
-                    <th>Price</th>
-                    <th>Quantity</th>
-                    <th>Action</th>
-                </tr>
-            `;
-            let total = 0;
-            for (const itemName in cart) {
-                const row = document.createElement('tr');
-                const nameCell = document.createElement('td');
-                const priceCell = document.createElement('td');
-                const quantityCell = document.createElement('td');
-                const actionCell = document.createElement('td');
-                nameCell.textContent = itemName;
-                priceCell.textContent = '€' + cart[itemName].price;
-                quantityCell.textContent = cart[itemName].quantity;
-                actionCell.innerHTML = `<div class="control" onclick="removeFromCart('${itemName}')">-</div>`;
-                row.appendChild(nameCell);
-                row.appendChild(priceCell);
-                row.appendChild(quantityCell);
-                row.appendChild(actionCell);
-                table.appendChild(row);
-                total += cart[itemName].price * cart[itemName].quantity;
-            }
-            const totalRow = document.createElement('tr');
-            const totalCell = document.createElement('td');
-            totalCell.colSpan = 3;
-            totalCell.style.textAlign = 'right';
-            totalCell.textContent = 'Total:';
-            const totalPriceCell = document.createElement('td');
-            totalPriceCell.textContent = '€' + total.toFixed(2);
-            totalRow.appendChild(totalCell);
-            totalRow.appendChild(totalPriceCell);
-            table.appendChild(totalRow);
-        }
-    </script>
-    <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        document.querySelector(".to-basket").addEventListener("click", function() {
-            let total = 0;
-            for (const itemName in cart) {
-                total += cart[itemName].price * cart[itemName].quantity;
-            }
-
-            fetch("/checkout", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ total_price: total })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    window.location.href = data.redirect_url;
-                } else {
-                    alert("Error: " + data.message);
-                }
-            })
-            .catch(error => console.error("Error:", error));
-        });
-    });
-    </script>
-
 </head>
 <body>
     <header>
@@ -331,45 +243,11 @@
         </nav>
     </header>
     <div class="container">
-        <div class="restaurant-info">
-            <img src="{{ url_for('static', filename='uploads/' ~ restaurant['restaurant_name'] ~ '/' ~ restaurant['photo_url']) }}" alt="Restaurant Photo">
-            <div class="description">
-                <h1>{{ restaurant['restaurant_name'] }}</h1>
-                <p>{{ restaurant['description'] }}</p>
-            </div>
-        </div>
-        <div class="menu">
-            <div class="menu-items">
-                <h2>Menu</h2>
-                {% for item in menu_items %}
-                <div class="item">
-                    <div class="item-info">
-                        <h3>{{ item['name'] }}</h3>
-                        <span>€{{ item['price'] }} </span>
-                        <p class="item-description">{{ item['description'] }}</p>
-                    </div>
-                    {% if item['photo_url'] %}
-                    <img src="{{ url_for('static', filename='uploads/' ~ restaurant['restaurant_name'] ~ '/' ~ item['photo_url']) }}" alt="{{ item['name'] }}">
-                    {% endif %}
-                    <div class="item-controls">
-                        <div class="control" onclick="addToCart('{{ item['name'] }}', {{ item['price'] }})">+</div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-            <div class="summary">
-                <h2>Cart</h2>
-                <table id="cart-table">
-                    <tr>
-                        <th>Item</th>
-                        <th>Price</th>
-                        <th>Quantity</th>
-                        <th>Action</th>
-                    </tr>
-                </table>
-                <button class="to-basket">Checkout &amp; Pay</button>
-            </div>
-        </div>
+        <h1>Payment Successful!</h1>
+        <p>Waiting for confirmation from restaurant.</p>
+        <img class="success-img" src="{{ url_for('static', filename='success.svg') }}" alt="Success">
+        <br>
+        <a class="home-button" href="{{ url_for('restaurants') }}">Return to Home</a>
     </div>
 </body>
 </html>

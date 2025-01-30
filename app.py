@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 import sqlite3
 import re
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -217,6 +217,53 @@ def make_menu():
     menu_items = conn.execute('SELECT * FROM menu_items WHERE restaurant_id = ?', (session['user_id'],)).fetchall()
     conn.close()
     return render_template('MakeMenu.html', menu_items=menu_items, restaurant_name=restaurant_name)
+
+@app.route('/checkout', methods=['POST'])
+def checkout():
+    if 'user_id' not in session:
+        return jsonify({'success': False, 'message': 'User not logged in'}), 401
+
+    data = request.json
+    total_price = data.get('total_price')
+
+    if total_price is None:
+        return jsonify({'success': False, 'message': 'Invalid request'}), 400
+
+    conn = get_db_connection()
+    user = conn.execute('SELECT current_balance FROM users WHERE id = ?', (session['user_id'],)).fetchone()
+    
+    if user is None:
+        conn.close()
+        return jsonify({'success': False, 'message': 'User not found'}), 404
+
+    user_balance = user['current_balance']
+
+    if user_balance < total_price:
+        conn.close()
+        return jsonify({'success': False, 'message': 'Insufficient balance'}), 400
+    
+    new_balance = round(user_balance - total_price, 2)  # Round off to 2 decimal places
+    conn.execute('UPDATE users SET current_balance = ? WHERE id = ?', (new_balance, session['user_id']))
+    conn.commit()
+
+    conn.close()
+    
+    return jsonify({'success': True, 'message': 'Payment successful', 'redirect_url': url_for('payment_success')})
+
+@app.route('/payment_success')
+def payment_success():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    conn = get_db_connection()
+    user = conn.execute('SELECT current_balance FROM users WHERE id = ?', (session['user_id'],)).fetchone()
+    conn.close()
+
+    if user is None:
+        return redirect(url_for('login'))
+
+    return render_template('payment_success.html', user_balance=user['current_balance'])
+
 
 @app.route('/partner/delete_menu_item/<int:item_id>', methods=['POST'])
 def delete_menu_item(item_id):
