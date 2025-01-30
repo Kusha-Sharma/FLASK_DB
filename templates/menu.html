@@ -11,61 +11,81 @@
             margin: 0;
             padding: 0;
             display: flex;
-            justify-content: center;
-            align-items: center;
+            flex-direction: column;
             min-height: 100vh;
         }
 
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background-color: #FFF;
+            font-size: 1rem;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        .logo img {
+            height: 60px;
+            margin-right: 10px;
+        }
+        nav {
+            display: flex;
+            align-items: center;
+        }
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            margin-right: auto;
+        }
+        .nav-links a {
+            font-size: 1.2rem;
+            color: #000;
+            text-decoration: none;
+        }
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+        .current-balance {
+            margin-left: 20px;
+            font-size: 1.2rem;
+            color: #000;
+        }
+        .logout {
+            margin-left: 20px;
+            padding: 10px 20px;
+            font-size: 1.2rem;
+            color: #000;
+            text-decoration: none;
+            border: 2px solid #000;
+            border-radius: 5px;
+        }
+        .logout:hover {
+            background-color: #000;
+            color: #FFF;
+        }
+
         .container {
-            width: 80%;
-            max-width: 900px;
+            width: 90%;
+            max-width: 1200px;
             background-color: #fffaf0;
             padding: 20px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
             border-radius: 8px;
+            margin: 20px auto;
         }
 
-        .header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .logo img {
-            width: 60px;
-            height: 60px;
-        }
-
-        .nav {
-            display: flex;
-            gap: 20px;
-        }
-
-        .nav a {
-            text-decoration: none;
-            font-size: 16px;
-            font-weight: bold;
-            color: #6c584c;
-        }
-
-        .nav a:hover {
-            text-decoration: underline;
-        }
-
-        .content {
+        .restaurant-info {
             display: flex;
             gap: 20px;
             margin-bottom: 20px;
         }
 
-        .content img {
+        .restaurant-info img {
             width: 150px;
             height: auto;
             border-radius: 8px;
@@ -112,6 +132,7 @@
             display: flex;
             flex-direction: column;
             gap: 5px;
+            flex: 1;
         }
 
         .item-info h3 {
@@ -125,8 +146,15 @@
             color: #555;
         }
 
+        .item-description {
+            font-size: 14px;
+            color: #777;
+            margin-top: 5px;
+        }
+
         .item-controls {
             display: flex;
+            align-items: center;
             gap: 10px;
         }
 
@@ -187,73 +215,133 @@
         .to-basket:hover {
             background-color: #5b4a40;
         }
+
+        .item img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
     </style>
+    <script>
+        let cart = {};
+
+        function addToCart(itemName, itemPrice) {
+            if (cart[itemName]) {
+                cart[itemName].quantity += 1;
+            } else {
+                cart[itemName] = { price: itemPrice, quantity: 1 };
+            }
+            updateCartTable();
+        }
+
+        function removeFromCart(itemName) {
+            if (cart[itemName]) {
+                cart[itemName].quantity -= 1;
+                if (cart[itemName].quantity <= 0) {
+                    delete cart[itemName];
+                }
+            }
+            updateCartTable();
+        }
+
+        function updateCartTable() {
+            const table = document.getElementById('cart-table');
+            table.innerHTML = `
+                <tr>
+                    <th>Item</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Action</th>
+                </tr>
+            `;
+            let total = 0;
+            for (const itemName in cart) {
+                const row = document.createElement('tr');
+                const nameCell = document.createElement('td');
+                const priceCell = document.createElement('td');
+                const quantityCell = document.createElement('td');
+                const actionCell = document.createElement('td');
+                nameCell.textContent = itemName;
+                priceCell.textContent = '€' + cart[itemName].price;
+                quantityCell.textContent = cart[itemName].quantity;
+                actionCell.innerHTML = `<div class="control" onclick="removeFromCart('${itemName}')">-</div>`;
+                row.appendChild(nameCell);
+                row.appendChild(priceCell);
+                row.appendChild(quantityCell);
+                row.appendChild(actionCell);
+                table.appendChild(row);
+                total += cart[itemName].price * cart[itemName].quantity;
+            }
+            const totalRow = document.createElement('tr');
+            const totalCell = document.createElement('td');
+            totalCell.colSpan = 3;
+            totalCell.style.textAlign = 'right';
+            totalCell.textContent = 'Total:';
+            const totalPriceCell = document.createElement('td');
+            totalPriceCell.textContent = '€' + total.toFixed(2);
+            totalRow.appendChild(totalCell);
+            totalRow.appendChild(totalPriceCell);
+            table.appendChild(totalRow);
+        }
+    </script>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <div class="logo">
-                <img src="Bite-buddies/logo.jpg" alt="Bite Buddies Logo">
-                <span>Bite Buddies</span>
-            </div>
-            <div class="nav">
-                <a href="landingpage.html">Home</a>
-                <a href="order.html">Orders</a>
-                <a href="shopping_cart.html">Basket</a>
-            </div>
+    <header>
+        <div class="logo">
+            <img src="{{ url_for('static', filename='logo-placeholder.png') }}" alt="Bite Buddies Logo">
+            Bite Buddies
         </div>
-        <div class="content">
-            <img src="Bite-buddies/dish.jpg" alt="German Cuisine">
+        <nav>
+            <div class="nav-links">
+                <a href="{{ url_for('restaurants') }}">Home</a>
+                <a href="#">Order</a>
+            </div>
+            <div class="current-balance">
+                Balance: €{{ user_balance }} 
+            </div>
+            <a class="logout" href="{{ url_for('logout') }}">Logout</a>
+        </nav>
+    </header>
+    <div class="container">
+        <div class="restaurant-info">
+            <img src="{{ url_for('static', filename='uploads/' ~ restaurant['restaurant_name'] ~ '/' ~ restaurant['photo_url']) }}" alt="Restaurant Photo">
             <div class="description">
-                <h1>German Gem</h1>
-                <p>Discover the authentic flavors of German cuisine in a warm and inviting atmosphere. From crispy schnitzels and savory sausages to homemade spätzle and refreshing German beers, we bring you the best of our culinary heritage.</p>
+                <h1>{{ restaurant['restaurant_name'] }}</h1>
+                <p>{{ restaurant['description'] }}</p>
             </div>
         </div>
         <div class="menu">
             <div class="menu-items">
+                <h2>Menu</h2>
+                {% for item in menu_items %}
                 <div class="item">
                     <div class="item-info">
-                        <h3>Bratwurst</h3>
-                        <span>3,50 Euro</span>
+                        <h3>{{ item['name'] }}</h3>
+                        <span>€{{ item['price'] }} </span>
+                        <p class="item-description">{{ item['description'] }}</p>
                     </div>
+                    {% if item['photo_url'] %}
+                    <img src="{{ url_for('static', filename='uploads/' ~ restaurant['restaurant_name'] ~ '/' ~ item['photo_url']) }}" alt="{{ item['name'] }}">
+                    {% endif %}
                     <div class="item-controls">
-                        <div class="control">+</div>
-                        <div class="control">-</div>
+                        <div class="control" onclick="addToCart('{{ item['name'] }}', {{ item['price'] }})">+</div>
                     </div>
                 </div>
-                <div class="item">
-                    <div class="item-info">
-                        <h3>Kartoffelsuppe</h3>
-                        <span>2,50 Euro</span>
-                    </div>
-                    <div class="item-controls">
-                        <div class="control">+</div>
-                        <div class="control">-</div>
-                    </div>
-                </div>
-                <div class="item">
-                    <div class="item-info">
-                        <h3>Berliner</h3>
-                        <span>1,00 Euro</span>
-                    </div>
-                    <div class="item-controls">
-                        <div class="control">+</div>
-                        <div class="control">-</div>
-                    </div>
-                </div>
+                {% endfor %}
             </div>
             <div class="summary">
-                <table>
+                <h2>Cart</h2>
+                <table id="cart-table">
                     <tr>
                         <th>Item</th>
                         <th>Price</th>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td></td>
+                        <th>Quantity</th>
+                        <th>Action</th>
                     </tr>
                 </table>
-                <button class="to-basket">To Basket</button>
+                <button class="to-basket">Checkout</button>
             </div>
         </div>
     </div>

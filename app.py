@@ -4,6 +4,7 @@ import re
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 import os
+from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Required for flash messages
@@ -16,7 +17,7 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def get_db_connection():
-    conn = sqlite3.connect('database/restaurant.db')
+    conn = sqlite3.connect('database/database.db')
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -27,96 +28,39 @@ def home():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        try:
-            # Get form data
-            name = request.form['name']
-            email = request.form['email']
-            address = request.form['address']
-            plz = request.form['plz']
-            password = request.form['password']
-            
-            # Basic validation
-            if not all([name, email, address, plz, password]):
-                flash('All fields are required!')
-                return render_template('register.html')
-            
-            # Email validation
-            if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
-                flash('Please enter a valid email address!')
-                return render_template('register.html')
-            
-            # PLZ validation (assuming it should be numeric)
-            if not plz.isdigit():
-                flash('PLZ should contain only numbers!')
-                return render_template('register.html')
-            
-            # Connect to database
-            conn = sqlite3.connect('database.db')
-            cursor = conn.cursor()
-            
-            # Check if email already exists
-            cursor.execute('SELECT * FROM Users WHERE email = ?', (email,))
-            if cursor.fetchone():
-                conn.close()
-                flash('Email already registered!')
-                return render_template('register.html')
-            
-            # Insert new user with initial balance of 100
-            cursor.execute('''INSERT INTO Users 
-                            (username, address, email, pincode, password, current) 
-                            VALUES (?, ?, ?, ?, ?, ?)''',
-                            (name, address, email, plz, password, '100'))
-            
-            conn.commit()
-            conn.close()
-            
-            flash('Registration successful! You can now login.')
-            return redirect(url_for('login'))
-            
-        except sqlite3.Error as e:
-            flash(f'Database error: {str(e)}')
-            return render_template('register.html')
-        
-        except Exception as e:
-            flash(f'An error occurred: {str(e)}')
-            return render_template('register.html')
-    
-    # If GET request, show the registration form
+        name = request.form['name']
+        email = request.form['email']
+        address = request.form['address']
+        plz = request.form['plz']
+        password = generate_password_hash(request.form['password'])
+
+        with get_db_connection() as conn:
+            try:
+                conn.execute('INSERT INTO users (username, address, email, pincode, password, current_balance) VALUES (?, ?, ?, ?, ?, ?)',
+                             (name, address, email, plz, password, 100))
+                conn.commit()
+                flash('Registration successful! You can now login.')
+                return redirect(url_for('login'))
+            except sqlite3.IntegrityError:
+                flash('Email already exists!')
     return render_template('register.html')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        email = request.form.get('email')
-        password = request.form.get('password')
+        email = request.form['email']
+        password = request.form['password']
 
-        if not email or not password:
-            flash("Email and password are required!")
-            return render_template('login.html')
+        with get_db_connection() as conn:
+            user = conn.execute('SELECT * FROM users WHERE email = ?', (email,)).fetchone()
 
-        try:
-            conn = sqlite3.connect('database.db')
-            cursor = conn.cursor()
-
-            # Fetch user from database
-            cursor.execute("SELECT * FROM Users WHERE email = ?", (email,))
-            user = cursor.fetchone()
-            conn.close()
-
-            if user and user[4] == password:  # Remove password hashing temporarily for debugging
-                session['user_id'] = user[0]
-                session['email'] = user[3]
-
-                flash("Login successful! Redirecting...")
-                return redirect(url_for('restaurants'))
-            else:
-                flash("Incorrect email or password!")
-                return render_template('login.html')
-
-        except sqlite3.Error as e:
-            flash(f"Database error: {str(e)}")
-            return render_template('login.html')
-
+        if user and check_password_hash(user['password'], password):
+            session['user_id'] = user['id']
+            session['email'] = user['email']
+            flash('Login successful! Redirecting...')
+            return redirect(url_for('restaurants'))
+        else:
+            flash('Invalid email or password!')
     return render_template('login.html')
 
 @app.route('/logout')
@@ -127,10 +71,31 @@ def logout():
 @app.route('/restaurants')
 def restaurants():
     if 'user_id' in session:
-        return render_template('restaurants.html')
+        conn = get_db_connection()
+        user = conn.execute('SELECT * FROM users WHERE id = ?', (session['user_id'],)).fetchone()
+        user_postcode = user['pincode']
+        user_balance = user['current_balance']
+        current_time = datetime.now().strftime('%H:%M:%S')  # Convert current time to string
+        restaurants = conn.execute('''
+            SELECT * FROM restaurants 
+            WHERE delivery_postcode = ? 
+            AND ? BETWEEN opening_hours_start AND opening_hours_end
+        ''', (user_postcode, current_time)).fetchall()
+        conn.close()
+        return render_template('restaurants.html', restaurants=restaurants, user_balance=user_balance)
     else:
         flash("You need to log in first!")
         return redirect(url_for('login'))
+
+@app.route('/restaurants/menu/<int:restaurant_id>')
+def restaurant_menu(restaurant_id):
+    conn = get_db_connection()
+    restaurant = conn.execute('SELECT * FROM restaurants WHERE id = ?', (restaurant_id,)).fetchone()
+    menu_items = conn.execute('SELECT * FROM menu_items WHERE restaurant_id = ?', (restaurant_id,)).fetchall()
+    user = conn.execute('SELECT * FROM users WHERE id = ?', (session['user_id'],)).fetchone()
+    user_balance = user['current_balance']
+    conn.close()
+    return render_template('menu.html', restaurant=restaurant, menu_items=menu_items, user_balance=user_balance)
 
 @app.route('/partner', methods=['GET'])
 def partner():
@@ -186,7 +151,6 @@ def partner_dashboard():
     if request.method == 'POST':
         opening_hours_start = request.form['opening_hours_start']
         opening_hours_end = request.form['opening_hours_end']
-        opening_hours = f"{opening_hours_start} to {opening_hours_end}"
         delivery_postcode = request.form['delivery_postcode']
         description = request.form['description']
         
@@ -201,8 +165,8 @@ def partner_dashboard():
                 file.save(os.path.join(restaurant_folder, filename))
                 conn.execute('UPDATE restaurants SET photo_url = ? WHERE id = ?', (filename, session['user_id']))
         
-        conn.execute('UPDATE restaurants SET opening_hours = ?, delivery_postcode = ?, description = ? WHERE id = ?',
-                     (opening_hours, delivery_postcode, description, session['user_id']))
+        conn.execute('UPDATE restaurants SET opening_hours_start = ?, opening_hours_end = ?, delivery_postcode = ?, description = ? WHERE id = ?',
+                     (opening_hours_start, opening_hours_end, delivery_postcode, description, session['user_id']))
         conn.commit()
         flash('Information updated successfully!')
     

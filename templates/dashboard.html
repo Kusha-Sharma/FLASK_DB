@@ -218,7 +218,7 @@
                 <p>Phone: {{ restaurant['phone'] }}</p>
                 <p>Address: {{ restaurant['address'] }}</p>
                 <p>PLZ: {{ restaurant['plz'] }}</p>
-                <p>Opening Hours: {{ restaurant['opening_hours'] }}</p>
+                <p>Opening Hours: {{ restaurant['opening_hours_start'] }} to {{ restaurant['opening_hours_end'] }}</p>
                 <p>Delivery Postcode: {{ restaurant['delivery_postcode'] }}</p>
                 <p>Description: {{ restaurant['description'] }}</p>
             </div>
@@ -239,10 +239,10 @@
             <span class="close" onclick="closeModal()">&times;</span>
             <form id="modify-form" method="POST" enctype="multipart/form-data">
                 <label for="opening_hours_start">Opening Hours Start:</label>
-                <input type="time" id="opening_hours_start" name="opening_hours_start" value="{{ restaurant['opening_hours'].split(' to ')[0] if restaurant['opening_hours'] else '' }}">
+                <input type="time" id="opening_hours_start" name="opening_hours_start" value="{{ restaurant['opening_hours_start'] }}">
                 
                 <label for="opening_hours_end">Opening Hours End:</label>
-                <input type="time" id="opening_hours_end" name="opening_hours_end" value="{{ restaurant['opening_hours'].split(' to ')[1] if restaurant['opening_hours'] else '' }}">
+                <input type="time" id="opening_hours_end" name="opening_hours_end" value="{{ restaurant['opening_hours_end'] }}">
                 
                 <label for="delivery_postcode">Delivery Postcode:</label>
                 <input type="number" id="delivery_postcode" name="delivery_postcode" value="{{ restaurant['delivery_postcode'] }}">

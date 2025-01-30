@@ -37,6 +37,19 @@
             display: flex;
             align-items: center;
         }
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            margin-right: auto;
+        }
+        .nav-links a {
+            font-size: 1.2rem;
+            color: #000;
+            text-decoration: none;
+        }
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
         .logout {
             padding: 10px 20px;
             font-size: 1.2rem;
@@ -44,6 +57,7 @@
             text-decoration: none;
             border: 2px solid #000;
             border-radius: 5px;
+            margin-left: 20px; /* Add margin to the left */
         }
         .logout:hover {
             background-color: #000;
@@ -167,6 +181,9 @@
             {{ restaurant_name }}
         </div>
         <nav>
+            <div class="nav-links">
+                <a href="{{ url_for('partner_dashboard') }}">Home</a>
+            </div>
             <a class="logout" href="{{ url_for('partner') }}">Logout</a>
         </nav>
     </header>

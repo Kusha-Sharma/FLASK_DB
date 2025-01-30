@@ -6,14 +6,8 @@ if not os.path.exists('database'):
     os.makedirs('database')
 
 # Connect to database
-connection = sqlite3.connect("database/restaurant.db")
+connection = sqlite3.connect("database/database.db")
 cursor = connection.cursor()
-
-# Drop the existing restaurants table if it exists
-cursor.execute("DROP TABLE IF EXISTS restaurants")
-
-# Drop the existing menu_items table if it exists
-cursor.execute("DROP TABLE IF EXISTS menu_items")
 
 # Create restaurants table with additional columns
 cursor.execute("""
@@ -25,7 +19,8 @@ CREATE TABLE restaurants (
     address TEXT NOT NULL,
     plz INTEGER NOT NULL,
     password TEXT NOT NULL,
-    opening_hours TEXT,  -- Stored as TEXT since SQLite does not have a TIME type
+    opening_hours_start TEXT,  -- Stored as TEXT since SQLite does not have a TIME type
+    opening_hours_end TEXT,    -- Stored as TEXT since SQLite does not have a TIME type
     delivery_postcode INTEGER,
     description TEXT,
     photo_url TEXT,
@@ -47,8 +42,22 @@ CREATE TABLE menu_items (
 )
 """)
 
-# Create indexes for faster queries
-cursor.execute("CREATE INDEX IF NOT EXISTS idx_email ON restaurants(email)")
+# Create Users table
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT NOT NULL,
+    address TEXT NOT NULL,
+    email TEXT NOT NULL UNIQUE,
+    pincode TEXT NOT NULL,
+    password TEXT NOT NULL,
+    current_balance REAL NOT NULL DEFAULT 100
+)
+""")
 
+# Create indexes for faster queries
+cursor.execute("CREATE INDEX IF NOT EXISTS idx_email ON Users(email)")
+
+# Commit the changes and close the connection
 connection.commit()
 connection.close()

@@ -50,10 +50,13 @@
         .nav-links a:hover {
             text-decoration: underline;
         }
-        .shopping-cart {
-            margin-right: 20px;
+        .current-balance {
+            margin-left: 20px;
+            font-size: 1.2rem;
+            color: #000;
         }
         .logout {
+            margin-left: 20px;
             padding: 10px 20px;
             font-size: 1.2rem;
             color: #000;
@@ -87,40 +90,54 @@
         }
         h1 {
             font-size: 3.5rem;
-            margin-bottom: 20px;
         }
         .restaurant-list {
-            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
         .restaurant-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 20px;
+            padding: 10px;
             border: 1px solid #ddd;
             border-radius: 8px;
-            margin-bottom: 10px;
             background-color: #fff;
-        }
-        .restaurant-item img {
-            width: 100px;
-            height: auto;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
         .restaurant-info {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 5px;
         }
         .restaurant-info h2 {
-            font-size: 1.5rem;
+            font-size: 18px;
             margin: 0;
             color: #6c584c;
         }
         .restaurant-info p {
-            font-size: 1.2rem;
+            font-size: 14px;
             color: #555;
+        }
+        .view-menu {
+            padding: 10px 20px;
+            background-color: #6c584c;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .view-menu:hover {
+            background-color: #5b4a40;
+        }
+        .restaurant-item img {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
     </style>
 </head>
@@ -134,7 +151,9 @@
             <div class="nav-links">
                 <a href="{{ url_for('restaurants') }}">Home</a>
                 <a href="#">Order</a>
-                <a href="#" class="shopping-cart">Shopping Cart</a>
+            </div>
+            <div class="current-balance">
+                Balance: €{{ user_balance }} 
             </div>
             <a class="logout" href="{{ url_for('logout') }}">Logout</a>
         </nav>
@@ -142,30 +161,21 @@
     <main>
         <div class="container">
             <div class="header">
-                <h1>Open Restaurants</h1>
+                <h1>Opening Restaurants</h1>
             </div>
             <div class="restaurant-list">
+                {% for restaurant in restaurants %}
                 <div class="restaurant-item">
                     <div class="restaurant-info">
-                        <h2>German Gem</h2>
-                        <p>Authentic German cuisine</p>
+                        <h2>{{ restaurant['restaurant_name'] }}</h2>
+                        <p>{{ restaurant['description'] }}</p>
+                        <a class="view-menu" href="{{ url_for('restaurant_menu', restaurant_id=restaurant['id']) }}">View Menu</a>
                     </div>
-                    <img src="Bite-buddies/dish.jpg" alt="German Gem">
+                    {% if restaurant['photo_url'] %}
+                    <img src="{{ url_for('static', filename='uploads/' ~ restaurant['restaurant_name'] ~ '/' ~ restaurant['photo_url']) }}" alt="{{ restaurant['restaurant_name'] }}">
+                    {% endif %}
                 </div>
-                <div class="restaurant-item">
-                    <div class="restaurant-info">
-                        <h2>Sushi House</h2>
-                        <p>Fresh sushi and sashimi</p>
-                    </div>
-                    <img src="Bite-buddies/sushi.jpg" alt="Sushi House">
-                </div>
-                <div class="restaurant-item">
-                    <div class="restaurant-info">
-                        <h2>Döner Palace</h2>
-                        <p>Delicious döner kebabs</p>
-                    </div>
-                    <img src="Bite-buddies/doner.jpg" alt="Döner Palace">
-                </div>
+                {% endfor %}
             </div>
         </div>
     </main>
