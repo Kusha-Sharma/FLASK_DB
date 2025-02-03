@@ -227,20 +227,24 @@
     <script>
         let cart = {};
 
-        function addToCart(itemName, itemPrice) {
-            if (cart[itemName]) {
-                cart[itemName].quantity += 1;
+        function addToCart(itemId, itemName, itemPrice) {
+            if (cart[itemId]) {
+                cart[itemId].quantity += 1;
             } else {
-                cart[itemName] = { price: itemPrice, quantity: 1 };
+                cart[itemId] = { 
+                    name: itemName,
+                    price: itemPrice, 
+                    quantity: 1 
+                };
             }
             updateCartTable();
         }
 
-        function removeFromCart(itemName) {
-            if (cart[itemName]) {
-                cart[itemName].quantity -= 1;
-                if (cart[itemName].quantity <= 0) {
-                    delete cart[itemName];
+        function removeFromCart(itemId) {
+            if (cart[itemId]) {
+                cart[itemId].quantity -= 1;
+                if (cart[itemId].quantity <= 0) {
+                    delete cart[itemId];
                 }
             }
             updateCartTable();
@@ -257,22 +261,23 @@
                 </tr>
             `;
             let total = 0;
-            for (const itemName in cart) {
+            for (const itemId in cart) {
+                const item = cart[itemId];
                 const row = document.createElement('tr');
                 const nameCell = document.createElement('td');
                 const priceCell = document.createElement('td');
                 const quantityCell = document.createElement('td');
                 const actionCell = document.createElement('td');
-                nameCell.textContent = itemName;
-                priceCell.textContent = '€' + cart[itemName].price;
-                quantityCell.textContent = cart[itemName].quantity;
-                actionCell.innerHTML = `<div class="control" onclick="removeFromCart('${itemName}')">-</div>`;
+                nameCell.textContent = item.name;
+                priceCell.textContent = '€' + item.price;
+                quantityCell.textContent = item.quantity;
+                actionCell.innerHTML = `<div class="control" onclick="removeFromCart('${itemId}')">-</div>`;
                 row.appendChild(nameCell);
                 row.appendChild(priceCell);
                 row.appendChild(quantityCell);
                 row.appendChild(actionCell);
                 table.appendChild(row);
-                total += cart[itemName].price * cart[itemName].quantity;
+                total += item.price * item.quantity;
             }
             const totalRow = document.createElement('tr');
             const totalCell = document.createElement('td');
@@ -290,14 +295,32 @@
     document.addEventListener("DOMContentLoaded", function() {
         document.querySelector(".to-basket").addEventListener("click", function() {
             let total = 0;
-            for (const itemName in cart) {
-                total += cart[itemName].price * cart[itemName].quantity;
+            const items = [];
+            
+            for (const itemId in cart) {
+                const item = cart[itemId];
+                total += item.price * item.quantity;
+                items.push({
+                    menu_item_id: parseInt(itemId),
+                    quantity: item.quantity
+                });
             }
+
+            if (items.length === 0) {
+                alert("Your cart is empty!");
+                return;
+            }
+
+            const restaurantId = document.getElementById('restaurant-data').dataset.restaurantId;
 
             fetch("/checkout", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ total_price: total })
+                body: JSON.stringify({ 
+                    total_price: total,
+                    restaurant_id: parseInt(restaurantId),
+                    items: items
+                })
             })
             .then(response => response.json())
             .then(data => {
@@ -307,7 +330,10 @@
                     alert("Error: " + data.message);
                 }
             })
-            .catch(error => console.error("Error:", error));
+            .catch(error => {
+                console.error("Error:", error);
+                alert("An error occurred during checkout. Please try again.");
+            });
         });
     });
     </script>
@@ -322,7 +348,7 @@
         <nav>
             <div class="nav-links">
                 <a href="{{ url_for('restaurants') }}">Home</a>
-                <a href="#">Order</a>
+                <a href="{{ url_for('user_orders') }}">My Orders</a>
             </div>
             <div class="current-balance">
                 Balance: €{{ user_balance }} 
@@ -331,6 +357,7 @@
         </nav>
     </header>
     <div class="container">
+        <div id="restaurant-data" data-restaurant-id="{{ restaurant['id'] }}"></div>
         <div class="restaurant-info">
             <img src="{{ url_for('static', filename='uploads/' ~ restaurant['restaurant_name'] ~ '/' ~ restaurant['photo_url']) }}" alt="Restaurant Photo">
             <div class="description">
@@ -345,14 +372,14 @@
                 <div class="item">
                     <div class="item-info">
                         <h3>{{ item['name'] }}</h3>
-                        <span>€{{ item['price'] }} </span>
+                        <span>€{{ item['price'] }}</span>
                         <p class="item-description">{{ item['description'] }}</p>
                     </div>
                     {% if item['photo_url'] %}
                     <img src="{{ url_for('static', filename='uploads/' ~ restaurant['restaurant_name'] ~ '/' ~ item['photo_url']) }}" alt="{{ item['name'] }}">
                     {% endif %}
                     <div class="item-controls">
-                        <div class="control" onclick="addToCart('{{ item['name'] }}', {{ item['price'] }})">+</div>
+                        <div class="control" onclick="addToCart('{{ item['id'] }}', '{{ item['name'] }}', {{ item['price'] }})">+</div>
                     </div>
                 </div>
                 {% endfor %}

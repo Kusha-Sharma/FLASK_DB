@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders - Bite Buddies</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f5e9;
+            color: #000;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background-color: #FFF;
+            font-size: 1rem;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        .logo img {
+            height: 60px;
+            margin-right: 10px;
+        }
+        nav {
+            display: flex;
+            align-items: center;
+        }
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            margin-right: 20px;
+        }
+        .nav-links a {
+            font-size: 1.2rem;
+            color: #000;
+            text-decoration: none;
+        }
+        .current-balance {
+            margin-right: 20px;
+            font-size: 1.2rem;
+        }
+        .logout {
+            padding: 10px 20px;
+            font-size: 1.2rem;
+            color: #000;
+            text-decoration: none;
+            border: 2px solid #000;
+            border-radius: 5px;
+        }
+        .logout:hover {
+            background-color: #000;
+            color: #FFF;
+        }
+        main {
+            padding: 50px;
+        }
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            background-color: white;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .status-placed {
+            color: #f39c12;
+            font-weight: bold;
+        }
+        .status-confirmed {
+            color: #27ae60;
+            font-weight: bold;
+        }
+        .status-rejected {
+            color: #c0392b;
+            font-weight: bold;
+        }
+        .order-items {
+            font-size: 0.9em;
+            color: #666;
+        }
+        .restaurant-name {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="{{ url_for('static', filename='logo-placeholder.png') }}" alt="Bite Buddies Logo">
+            Bite Buddies
+        </div>
+        <nav>
+            <div class="nav-links">
+                <a href="{{ url_for('restaurants') }}">Home</a>
+                <a href="{{ url_for('user_orders') }}">My Orders</a>
+            </div>
+            <div class="current-balance">
+                Balance: €{{ user_balance }}
+            </div>
+            <a class="logout" href="{{ url_for('logout') }}">Logout</a>
+        </nav>
+    </header>
+    <main>
+        <h1>My Order History</h1>
+        <table>
+            <tr>
+                <th>Order ID</th>
+                <th>Restaurant</th>
+                <th>Items</th>
+                <th>Total Amount</th>
+                <th>Status</th>
+                <th>Date</th>
+            </tr>
+            {% for order in orders %}
+            <tr>
+                <td>#{{ order['id'] }}</td>
+                <td class="restaurant-name">{{ order['restaurant_name'] }}</td>
+                <td>
+                    <div class="order-items">
+                    {% for item in order['items'] %}
+                        {{ item['name'] }} x{{ item['quantity'] }} (€{{ "%.2f"|format(item['price']) }})<br>
+                    {% endfor %}
+                    </div>
+                </td>
+                <td>€{{ "%.2f"|format(order['total_amount']) }}</td>
+                <td class="status-{{ order['status'] }}">{{ order['status'].upper() }}</td>
+                <td>{{ order['created_at'] }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </main>
+</body>
+</html>

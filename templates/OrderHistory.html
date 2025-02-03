@@ -1,4 +1,3 @@
-<!-- filepath: /c:/Users/leesh/Documents/GitHub/FLASK_DB/templates/OrderHistory.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -69,7 +68,140 @@
         th {
             background-color: #f2f2f2;
         }
+        .status-placed {
+            color: #f39c12;
+            font-weight: bold;
+        }
+        .status-confirmed {
+            color: #27ae60;
+            font-weight: bold;
+        }
+        .status-rejected {
+            color: #c0392b;
+            font-weight: bold;
+        }
+        .action-button {
+            padding: 8px 15px;
+            margin: 0 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .accept-btn {
+            background-color: #27ae60;
+            color: white;
+        }
+        .reject-btn {
+            background-color: #c0392b;
+            color: white;
+        }
+        .action-button:hover {
+            opacity: 0.8;
+        }
+        .order-items {
+            font-size: 0.9em;
+            color: #666;
+        }
+        .status-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+            z-index: 1000;
+        }
+        .success-message {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .disabled-button {
+            opacity: 0.5;
+            cursor: not-allowed !important;
+        }
     </style>
+    <script>
+        async function updateOrderStatus(orderId, status, button) {
+            // Disable both buttons in the same row
+            const row = button.closest('tr');
+            const buttons = row.querySelectorAll('.action-button');
+            buttons.forEach(btn => {
+                btn.disabled = true;
+                btn.classList.add('disabled-button');
+            });
+
+            try {
+                const response = await fetch(`/partner/orders/${orderId}/update-status`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        order_id: orderId,
+                        status: status
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showStatusMessage(data.message, 'success');
+                    
+                    // Update the status cell
+                    const statusCell = row.querySelector('td:nth-child(5)');
+                    statusCell.textContent = status.toUpperCase();
+                    statusCell.className = `status-${status}`;
+
+                    // Remove the action buttons
+                    const actionCell = row.querySelector('td:last-child');
+                    actionCell.textContent = '-';
+                } else {
+                    showStatusMessage(data.message, 'error');
+                    // Re-enable buttons if there was an error
+                    buttons.forEach(btn => {
+                        btn.disabled = false;
+                        btn.classList.remove('disabled-button');
+                    });
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showStatusMessage('An error occurred. Please try again.', 'error');
+                // Re-enable buttons if there was an error
+                buttons.forEach(btn => {
+                    btn.disabled = false;
+                    btn.classList.remove('disabled-button');
+                });
+            }
+        }
+
+        function showStatusMessage(message, type) {
+            // Create message div if it doesn't exist
+            let messageDiv = document.getElementById('status-message');
+            if (!messageDiv) {
+                messageDiv = document.createElement('div');
+                messageDiv.id = 'status-message';
+                messageDiv.className = 'status-message';
+                document.body.appendChild(messageDiv);
+            }
+
+            // Set message content and style
+            messageDiv.textContent = message;
+            messageDiv.className = `status-message ${type}-message`;
+            messageDiv.style.display = 'block';
+
+            // Hide message after 3 seconds
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 3000);
+        }
+    </script>
 </head>
 <body>
     <header>
@@ -78,7 +210,7 @@
             Bite Buddies
         </div>
         <nav>
-            <a class="logout" href="{{ url_for('partner') }}">Logout</a>
+            <a class="logout" href="{{ url_for('logout') }}">Logout</a>
         </nav>
     </header>
     <main>
@@ -86,21 +218,37 @@
         <table>
             <tr>
                 <th>Order ID</th>
-                <th>Customer Name</th>
-                <th>Dish</th>
-                <th>Quantity</th>
-                <th>Total Price</th>
+                <th>Customer</th>
+                <th>Items</th>
+                <th>Total Amount</th>
+                <th>Status</th>
                 <th>Date</th>
+                <th>Actions</th>
             </tr>
-            <!-- Example row, replace with dynamic content -->
-            <tr>
-                <td>1</td>
-                <td>John Doe</td>
-                <td>Pizza</td>
-                <td>2</td>
-                <td>€20</td>
-                <td>2023-01-01</td>
-            </tr>
+            {% for order in orders %}
+        <tr>
+            <td>#{{ order['id'] }}</td>
+            <td>{{ order['username'] }}</td>
+            <td>
+                <div class="order-items">
+                {% for item in order['items'] %}
+                    {{ item['name'] }} x{{ item['quantity'] }} (€{{ "%.2f"|format(item['price']) }})<br>
+                {% endfor %}
+                </div>
+            </td>
+            <td>€{{ "%.2f"|format(order['total_amount']) }}</td>
+            <td class="status-{{ order['status'] }}">{{ order['status'].upper() }}</td>
+            <td>{{ order['created_at'] }}</td>
+            <td>
+                {% if order['status'] == 'placed' %}
+                <button class="action-button accept-btn" onclick="updateOrderStatus({{ order['id'] }}, 'confirmed', this)">Accept</button>
+                <button class="action-button reject-btn" onclick="updateOrderStatus({{ order['id'] }}, 'rejected', this)">Reject</button>
+                {% else %}
+                -
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
         </table>
     </main>
 </body>

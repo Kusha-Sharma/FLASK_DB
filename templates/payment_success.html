@@ -234,7 +234,7 @@
         <nav>
             <div class="nav-links">
                 <a href="{{ url_for('restaurants') }}">Home</a>
-                <a href="#">Order</a>
+                <a href="{{ url_for('user_orders') }}">My Orders</a>
             </div>
             <div class="current-balance">
                 Balance: €{{ user_balance }} 

@@ -225,30 +225,76 @@ def checkout():
 
     data = request.json
     total_price = data.get('total_price')
+    restaurant_id = data.get('restaurant_id')
+    # Expected format: [{"menu_item_id": id, "quantity": qty}]
+    order_items = data.get('items')
 
-    if total_price is None:
+    if not all([total_price, restaurant_id, order_items]):
         return jsonify({'success': False, 'message': 'Invalid request'}), 400
 
     conn = get_db_connection()
-    user = conn.execute('SELECT current_balance FROM users WHERE id = ?', (session['user_id'],)).fetchone()
-    
-    if user is None:
+    try:
+        # Start transaction
+        conn.execute('BEGIN TRANSACTION')
+        
+        # Check user balance
+        user = conn.execute('SELECT current_balance FROM users WHERE id = ?', 
+                          (session['user_id'],)).fetchone()
+        
+        if user is None:
+            conn.rollback()
+            return jsonify({'success': False, 'message': 'User not found'}), 404
+
+        if user['current_balance'] < total_price:
+            conn.rollback()
+            return jsonify({'success': False, 'message': 'Insufficient balance'}), 400
+        
+        # Create order
+        cursor = conn.execute('''
+            INSERT INTO orders (user_id, restaurant_id, total_amount, status)
+            VALUES (?, ?, ?, ?)
+        ''', (session['user_id'], restaurant_id, total_price, 'placed'))
+        
+        order_id = cursor.lastrowid
+
+        # Add order items
+        for item in order_items:
+            # Get current price of menu item
+            menu_item = conn.execute('''
+                SELECT price FROM menu_items 
+                WHERE id = ? AND restaurant_id = ?
+            ''', (item['menu_item_id'], restaurant_id)).fetchone()
+            
+            if not menu_item:
+                conn.rollback()
+                return jsonify({'success': False, 'message': 'Invalid menu item'}), 400
+            
+            # Store order item with current price
+            conn.execute('''
+                INSERT INTO order_items (order_id, menu_item_id, quantity, price_at_time)
+                VALUES (?, ?, ?, ?)
+            ''', (order_id, item['menu_item_id'], item['quantity'], menu_item['price']))
+
+        # Update user balance
+        new_balance = round(user['current_balance'] - total_price, 2)
+        conn.execute('UPDATE users SET current_balance = ? WHERE id = ?', 
+                    (new_balance, session['user_id']))
+
+        # Commit transaction
+        conn.commit()
+        
+    except sqlite3.Error as e:
+        conn.rollback()
+        return jsonify({'success': False, 'message': f'Database error: {str(e)}'}), 500
+    finally:
         conn.close()
-        return jsonify({'success': False, 'message': 'User not found'}), 404
-
-    user_balance = user['current_balance']
-
-    if user_balance < total_price:
-        conn.close()
-        return jsonify({'success': False, 'message': 'Insufficient balance'}), 400
     
-    new_balance = round(user_balance - total_price, 2)  # Round off to 2 decimal places
-    conn.execute('UPDATE users SET current_balance = ? WHERE id = ?', (new_balance, session['user_id']))
-    conn.commit()
-
-    conn.close()
-    
-    return jsonify({'success': True, 'message': 'Payment successful', 'redirect_url': url_for('payment_success')})
+    return jsonify({
+        'success': True, 
+        'message': 'Order placed successfully',
+        'order_id': order_id,
+        'redirect_url': url_for('payment_success')
+    })
 
 @app.route('/payment_success')
 def payment_success():
@@ -284,6 +330,175 @@ def order_history():
 @app.route('/about')
 def about():
     return render_template('aboutUS.html')
+
+@app.route('/partner/orders')
+def partner_orders():
+    if 'user_id' not in session:
+        return redirect(url_for('partner'))
+    
+    conn = get_db_connection()
+    try:
+        # Get all orders for the restaurant with related information
+        orders = conn.execute('''
+            SELECT 
+                o.id,
+                o.total_amount,
+                o.status,
+                o.created_at,
+                u.username,
+                u.id as user_id
+            FROM orders o
+            JOIN users u ON o.user_id = u.id
+            WHERE o.restaurant_id = ?
+            ORDER BY 
+                CASE 
+                    WHEN o.status = 'placed' THEN 1
+                    WHEN o.status = 'confirmed' THEN 2
+                    WHEN o.status = 'rejected' THEN 3
+                END,
+                o.created_at DESC
+        ''', (session['user_id'],)).fetchall()
+
+        # Process each order
+        orders_with_items = []
+        for order in orders:
+            # Convert SQLite Row to dictionary
+            order_dict = dict(order)
+            
+            # Get items for this order
+            items = conn.execute('''
+                SELECT 
+                    oi.quantity,
+                    oi.price_at_time,
+                    mi.name
+                FROM order_items oi
+                JOIN menu_items mi ON oi.menu_item_id = mi.id
+                WHERE oi.order_id = ?
+            ''', (order['id'],)).fetchall()
+            
+            # Convert items to list of dictionaries
+            items_list = []
+            for item in items:
+                items_list.append({
+                    'name': item['name'],
+                    'quantity': item['quantity'],
+                    'price': item['price_at_time']
+                })
+            
+            # Add items list to order dictionary
+            order_dict['items'] = items_list
+            orders_with_items.append(order_dict)
+
+    except sqlite3.Error as e:
+        print(f"Database error: {str(e)}")
+        flash("An error occurred while fetching orders.")
+        orders_with_items = []
+    finally:
+        conn.close()
+
+    return render_template('OrderHistory.html', orders=orders_with_items)
+
+@app.route('/partner/orders/<int:order_id>/update-status', methods=['POST'])
+def update_order_status(order_id):
+    if 'user_id' not in session:
+        return jsonify({'success': False, 'message': 'Not authenticated'}), 401
+    
+    new_status = request.json.get('status')
+    
+    if new_status not in ['confirmed', 'rejected']:
+        return jsonify({'success': False, 'message': 'Invalid status'}), 400
+    
+    conn = get_db_connection()
+    try:
+        # Verify the order belongs to this restaurant
+        order = conn.execute('''
+            SELECT * FROM orders 
+            WHERE id = ? AND restaurant_id = ? AND status = 'placed'
+        ''', (order_id, session['user_id'])).fetchone()
+        
+        if not order:
+            return jsonify({
+                'success': False, 
+                'message': 'Order not found or already processed'
+            }), 404
+        
+        # Update the order status
+        conn.execute('''
+            UPDATE orders 
+            SET status = ? 
+            WHERE id = ? AND restaurant_id = ?
+        ''', (new_status, order_id, session['user_id']))
+        
+        conn.commit()
+        return jsonify({
+            'success': True,
+            'message': f'Order {new_status} successfully'
+        })
+        
+    except sqlite3.Error as e:
+        print(f"Database error: {str(e)}")
+        return jsonify({
+            'success': False,
+            'message': 'Database error occurred'
+        }), 500
+    finally:
+        conn.close()
+
+@app.route('/user/orders')
+def user_orders():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    
+    conn = get_db_connection()
+    try:
+        # Get user's current balance
+        user = conn.execute('SELECT current_balance FROM users WHERE id = ?', 
+                          (session['user_id'],)).fetchone()
+        
+        # Get all orders for the user with restaurant information
+        orders = conn.execute('''
+            SELECT 
+                o.id,
+                o.total_amount,
+                o.status,
+                o.created_at,
+                r.restaurant_name,
+                r.id as restaurant_id
+            FROM orders o
+            JOIN restaurants r ON o.restaurant_id = r.id
+            WHERE o.user_id = ?
+            ORDER BY o.created_at DESC
+        ''', (session['user_id'],)).fetchall()
+
+        # For each order, get its items
+        orders_with_items = []
+        for order in orders:
+            items = conn.execute('''
+                SELECT 
+                    oi.quantity,
+                    oi.price_at_time as price,
+                    mi.name
+                FROM order_items oi
+                JOIN menu_items mi ON oi.menu_item_id = mi.id
+                WHERE oi.order_id = ?
+            ''', (order['id'],)).fetchall()
+            
+            # Convert to dictionary and add items
+            order_dict = dict(order)
+            order_dict['items'] = [dict(item) for item in items]
+            orders_with_items.append(order_dict)
+
+    except sqlite3.Error as e:
+        print(f"Database error: {str(e)}")
+        flash("An error occurred while fetching your orders.")
+        orders_with_items = []
+        user = None
+    finally:
+        conn.close()
+
+    return render_template('user_order_history.html', 
+                         orders=orders_with_items,
+                         user_balance=user['current_balance'] if user else 0)
 
 if __name__ == '__main__':
     app.run(debug=True)

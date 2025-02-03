@@ -55,6 +55,33 @@ CREATE TABLE IF NOT EXISTS users (
 )
 """)
 
+# Create orders table
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS orders (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    restaurant_id INTEGER NOT NULL,
+    total_amount REAL NOT NULL,
+    status TEXT NOT NULL CHECK(status IN ('placed', 'confirmed', 'rejected')) DEFAULT 'placed',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users (id),
+    FOREIGN KEY (restaurant_id) REFERENCES restaurants (id)
+)
+""")
+
+# Create order_items table
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS order_items (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    order_id INTEGER NOT NULL,
+    menu_item_id INTEGER NOT NULL,
+    quantity INTEGER NOT NULL,
+    price_at_time REAL NOT NULL,
+    FOREIGN KEY (order_id) REFERENCES orders (id),
+    FOREIGN KEY (menu_item_id) REFERENCES menu_items (id)
+)
+""")
+
 # Create indexes for faster queries
 cursor.execute("CREATE INDEX IF NOT EXISTS idx_email ON Users(email)")
 
