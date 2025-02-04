@@ -426,7 +426,7 @@ def update_order_status(order_id):
             # Update restaurant balance
             restaurant = conn.execute('SELECT balance FROM restaurants WHERE id = ?', 
                                     (session['user_id'],)).fetchone()
-            new_balance = round(restaurant['balance'] + order['total_amount'], 2)
+            new_balance = round(restaurant['balance'] + (order['total_amount']*0.85), 2)
             conn.execute('UPDATE restaurants SET balance = ? WHERE id = ?', 
                         (new_balance, session['user_id']))
         
