@@ -430,6 +430,14 @@ def update_order_status(order_id):
             conn.execute('UPDATE restaurants SET balance = ? WHERE id = ?', 
                         (new_balance, session['user_id']))
         
+        if new_status == 'rejected':
+            # Refund user balance
+            user = conn.execute('SELECT current_balance FROM users WHERE id = ?', 
+                             (order['user_id'],)).fetchone()
+            new_balance = round(user['current_balance'] + order['total_amount'], 2)
+            conn.execute('UPDATE users SET current_balance = ? WHERE id = ?', 
+                        (new_balance, order['user_id']))
+
         # Update the order status
         conn.execute('''
             UPDATE orders 

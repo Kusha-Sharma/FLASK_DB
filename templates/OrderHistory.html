@@ -130,7 +130,7 @@
     <script>
         async function updateOrderStatus(orderId, status, button) {
             // Disable both buttons in the same row
-            const row = button.closest('tr');
+            const row = button.closest('tr'); //table row
             const buttons = row.querySelectorAll('.action-button');
             buttons.forEach(btn => {
                 btn.disabled = true;
