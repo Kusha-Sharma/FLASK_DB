@@ -407,7 +407,7 @@ def update_order_status(order_id):
     
     if new_status not in ['confirmed', 'rejected']:
         return jsonify({'success': False, 'message': 'Invalid status'}), 400
-    
+
     conn = get_db_connection()
     try:
         # Verify the order belongs to this restaurant
@@ -415,12 +415,20 @@ def update_order_status(order_id):
             SELECT * FROM orders 
             WHERE id = ? AND restaurant_id = ? AND status = 'placed'
         ''', (order_id, session['user_id'])).fetchone()
-        
+
         if not order:
             return jsonify({
                 'success': False, 
                 'message': 'Order not found or already processed'
             }), 404
+        
+        if new_status == 'confirmed':
+            # Update restaurant balance
+            restaurant = conn.execute('SELECT balance FROM restaurants WHERE id = ?', 
+                                    (session['user_id'],)).fetchone()
+            new_balance = round(restaurant['balance'] + order['total_amount'], 2)
+            conn.execute('UPDATE restaurants SET balance = ? WHERE id = ?', 
+                        (new_balance, session['user_id']))
         
         # Update the order status
         conn.execute('''
