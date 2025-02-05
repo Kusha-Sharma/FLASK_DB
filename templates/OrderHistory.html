@@ -34,6 +34,19 @@
             display: flex;
             align-items: center;
         }
+        .nav-links {
+            display: flex;
+            align-items: center;
+        }
+        .nav-links a {
+            margin-left: 20px;
+            font-size: 1.2rem;
+            color: #000;
+            text-decoration: none;
+        }
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
         .logout {
             padding: 10px 20px;
             font-size: 1.2rem;
@@ -41,6 +54,7 @@
             text-decoration: none;
             border: 2px solid #000;
             border-radius: 5px;
+            margin-left: 20px;
         }
         .logout:hover {
             background-color: #000;
@@ -209,7 +223,8 @@
             <img src="{{ url_for('static', filename='logo-placeholder.png') }}" alt="Bite Buddies Logo">
             Bite Buddies
         </div>
-        <nav>
+        <nav class="nav-links">
+            <a href="{{ url_for('partner_dashboard') }}">Home</a>
             <a class="logout" href="{{ url_for('logout') }}">Logout</a>
         </nav>
     </header>
@@ -248,7 +263,7 @@
                 {% endif %}
             </td>
         </tr>
-        {% endfor %}
+            {% endfor %}
         </table>
     </main>
 </body>

@@ -382,7 +382,7 @@ def partner_orders():
                 items_list.append({
                     'name': item['name'],
                     'quantity': item['quantity'],
-                    'price': item['price_at_time']
+                    'price': float(item['price_at_time'])  # Convert price to float
                 })
             
             # Add items list to order dictionary
